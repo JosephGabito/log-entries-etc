@@ -1,0 +1,11 @@
+{
+    "require": {
+        "maximebf/debugbar": "^1.18",
+        "php-di/php-di": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "LogEntriesEtc\\": "src/"
+        }
+    }
+}

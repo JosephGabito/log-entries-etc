@@ -4,6 +4,9 @@
  * Plugin URI:  https://josephwp.com
  * Description: A WordPress wrapper for PHP Debug Bar. Useful when troubleshooting.
  * Version:     1.0.0
+ * Requires at least: 4.6
+ * Tested up to: 4.8
+ * Requires PHP: 7.4.0
  * Author:      Joseph G.
  * Author URI:  https://josephwp.com
  * License:     GPL2+
@@ -16,6 +19,10 @@ namespace LogEntriesEtc;
 
 use LogEntriesEtc\Events\Emitter\DebugContainer;
 use LogEntriesEtc\Collectors\HTTPRequestCollector;
+
+if ( version_compare(phpversion(), '7.4', '<') ) {
+    return;
+}
 
 require_once __DIR__ . '/vendor/autoload.php';
 

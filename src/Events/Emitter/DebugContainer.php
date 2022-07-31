@@ -2,6 +2,8 @@
 
 namespace LogEntriesEtc\Events\Emitter;
 
+use LogEntriesEtc\Collectors\WPHttpRequestCollector;
+
 class DebugContainer
 {
     public function __construct(\DebugBar\StandardDebugBar $debugbar, \LogEntriesEtc\Config $config)
@@ -9,6 +11,11 @@ class DebugContainer
         $this->debugbar = $debugbar;
 
         $this->config = $config;
+    }
+
+    public function getDebugBar()
+    {
+        return $this->debugbar;
     }
 
     public function emit()

@@ -25,4 +25,5 @@ $debugEmitter = $container->get( DebugContainer::class );
 $debugEmitter->emit();
 
 // Subscribe to http api debug
-add_action( 'http_api_debug', array( $container->get( HTTPRequestCollector::class ), 'collect' ), 10, 5 );
+$httpRequestCollector = $container->get( HTTPRequestCollector::class );
+$httpRequestCollector->dispatch();

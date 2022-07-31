@@ -21,9 +21,10 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 $container = new \DI\Container();
 
+// WordPress wrapper for phpdebug.
 $debugEmitter = $container->get( DebugContainer::class );
 $debugEmitter->emit();
 
-// Subscribe to http api debug
+// Http Request Data Collectors.
 $httpRequestCollector = $container->get( HTTPRequestCollector::class );
 $httpRequestCollector->dispatch();

@@ -9,7 +9,7 @@ class ComposerAutoloaderInitc1f7790e00ace94ee27bcea9d8e26d99
     public static function loadClassLoader($class)
     {
         if ('Composer\Autoload\ClassLoader' === $class) {
-            include __DIR__ . '/ClassLoader.php';
+            require __DIR__ . '/ClassLoader.php';
         }
     }
 
@@ -22,13 +22,13 @@ class ComposerAutoloaderInitc1f7790e00ace94ee27bcea9d8e26d99
             return self::$loader;
         }
 
-        include __DIR__ . '/platform_check.php';
+        require __DIR__ . '/platform_check.php';
 
         spl_autoload_register(array('ComposerAutoloaderInitc1f7790e00ace94ee27bcea9d8e26d99', 'loadClassLoader'), true, true);
         self::$loader = $loader = new \Composer\Autoload\ClassLoader(\dirname(__DIR__));
         spl_autoload_unregister(array('ComposerAutoloaderInitc1f7790e00ace94ee27bcea9d8e26d99', 'loadClassLoader'));
 
-        include __DIR__ . '/autoload_static.php';
+        require __DIR__ . '/autoload_static.php';
         call_user_func(\Composer\Autoload\ComposerStaticInitc1f7790e00ace94ee27bcea9d8e26d99::getInitializer($loader));
 
         $loader->register(true);
@@ -43,8 +43,8 @@ class ComposerAutoloaderInitc1f7790e00ace94ee27bcea9d8e26d99
 }
 
 /**
- * @param  string $fileIdentifier
- * @param  string $file
+ * @param string $fileIdentifier
+ * @param string $file
  * @return void
  */
 function composerRequirec1f7790e00ace94ee27bcea9d8e26d99($fileIdentifier, $file)
@@ -52,6 +52,6 @@ function composerRequirec1f7790e00ace94ee27bcea9d8e26d99($fileIdentifier, $file)
     if (empty($GLOBALS['__composer_autoload_files'][$fileIdentifier])) {
         $GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
 
-        include $file;
+        require $file;
     }
 }

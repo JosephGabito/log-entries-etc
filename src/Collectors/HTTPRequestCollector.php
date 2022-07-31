@@ -8,8 +8,19 @@ class HTTPRequestCollector
 
     public function __construct(\DebugBar\StandardDebugBar $debugbar)
     {
-
         $this->debugbar = $debugbar;
+    }
+
+    public function dispatch()
+    {
+
+        add_action('http_api_debug', array( $this, 'collect' ), 10, 5);
+        add_filter('pre_http_request', array( $this, 'startProfile' ), 10, 2);
+    }
+
+    public function startProfile($parsed_args, $url)
+    {
+        $this->debugbar['time']->startMeasure('http_requests', 'HTTP Requests');
     }
 
     public function collect($response, $requests, $class, $parsed_args, $url)
@@ -19,7 +30,7 @@ class HTTPRequestCollector
             $this->debugbar->addCollector(new \DebugBar\DataCollector\MessagesCollector('HTTP_Requests'));
         }
 
-        $this->debugbar['time']->startMeasure('longop', 'My long operation');
+
 
         $status_code = wp_remote_retrieve_response_code($response);
 
@@ -62,5 +73,6 @@ class HTTPRequestCollector
         );
 
         $this->debugbar['HTTP_Requests']->info('End~');
+        $this->debugbar['time']->stopMeasure('http_requests');
     }
 }

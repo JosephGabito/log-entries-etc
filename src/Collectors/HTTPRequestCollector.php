@@ -30,8 +30,6 @@ class HTTPRequestCollector
             $this->debugbar->addCollector(new \DebugBar\DataCollector\MessagesCollector('HTTP_Requests'));
         }
 
-
-
         $status_code = wp_remote_retrieve_response_code($response);
 
         if (! in_array($status_code, self::HTTP_OK_STATUSES, true)) {

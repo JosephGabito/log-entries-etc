@@ -14,14 +14,15 @@
  */
 namespace LogEntriesEtc;
 
-use \LogEntriesEtc\Dispatcher\Hooks;
-use \LogEntriesEtc\Dispatcher\HTTPRequestCollector;
+use LogEntriesEtc\Events\Emitter\DebugContainer;
+use LogEntriesEtc\Collectors\HTTPRequestCollector;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
 $container = new \DI\Container();
 
-$hooksManager = $container->get( Hooks::class );
+$debugEmitter = $container->get( DebugContainer::class );
+$debugEmitter->emit();
 
 // Subscribe to http api debug
 add_action( 'http_api_debug', array( $container->get( HTTPRequestCollector::class ), 'collect' ), 10, 5 );

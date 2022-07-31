@@ -9,6 +9,11 @@ class HTTPRequestCollector
     public function __construct(\DebugBar\StandardDebugBar $debugbar)
     {
         $this->debugbar = $debugbar;
+
+        if (! $this->debugbar->hasCollector('HTTP_Requests')) {
+            $this->debugbar->addCollector(new \DebugBar\DataCollector\MessagesCollector('HTTP_Requests'));
+        }
+
     }
 
     public function dispatch()
@@ -19,87 +24,100 @@ class HTTPRequestCollector
 
     public function startProfile($preempt, $parsed_args, $url)
     {
-		$domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-        $this->debugbar['time']->startMeasure('http_requests', $domain);
+        $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+        $this->debugbar['time']->startMeasure('http_requests', $domain, parse_url($url, PHP_URL_PATH));
 
-		return $preempt;
+        return $preempt;
     }
 
     public function collect($response, $requests, $class, $parsed_args, $url)
     {
 
-        if (! $this->debugbar->hasCollector('HTTP_Requests')) {
-            $this->debugbar->addCollector(new \DebugBar\DataCollector\MessagesCollector('HTTP_Requests'));
-        }
+        $this->collectStatusCodes($response, $url, $parsed_args);
 
-       	$this->collectStatusCodes( $response, $url );
+        $this->collectRequestsArgs($parsed_args, $url);
 
-        $this->debugbar['HTTP_Requests']->info(
-            array(
-                'Request' => $parsed_args,
-            )
-        );
-		
-		$this->collectResponseBody( $response );
+        $this->collectResponseBody($response);
 
-        $this->debugbar['HTTP_Requests']->info(
-            array(
-                'Response:Header' => wp_remote_retrieve_headers($response),
-            )
-        );
+        $this->collectResponseHeaders($response);
 
-        $this->debugbar['HTTP_Requests']->addMessage(
-            array(
-                'WPHTTP:Debug:' . $class => array(
-                    'Response'  => $response,
-                    'Request'   => $requests,
-                    'Class'     => $class,
-                    'Arguments' => $parsed_args,
-                    'Url'       => $url,
-                ),
-            )
-        );
-
-        $this->debugbar['HTTP_Requests']->info('End~');
+        $this->collectHttpRequest($response, $requests, $class, $parsed_args, $url);
+        
         $this->debugbar['time']->stopMeasure('http_requests');
+
     }
 
-	public function collectStatusCodes( $response, $url ) {
+    public function collectResponseHeaders($response)
+    {
+        $this->debugbar['HTTP_Requests']->addMessage(
+            array(
+                'Response:Header' => wp_remote_retrieve_headers($response),
+            ),
+            'http-response-header'
+        );
+    }
 
-		$status_code = wp_remote_retrieve_response_code($response);
+    public function collectStatusCodes($response, $url, $parsed_args)
+    {
 
-		if ( empty( $status_code ) ) {
-			$this->debugbar['HTTP_Requests']->info($url);
-			$this->debugbar['HTTP_Requests']->error('Status code empty. Possible a non-blocking request.');
-			return;
-		}
+        $status_code = wp_remote_retrieve_response_code($response);
 
-		if (! in_array($status_code, self::HTTP_OK_STATUSES, true)) {
-            $this->debugbar['HTTP_Requests']->error($url);
-            $this->debugbar['HTTP_Requests']->error('Status code: ' . $status_code);
-			return;
+        if (empty($status_code)) {
+            $this->debugbar['HTTP_Requests']->addMessage($parsed_args['method'] . ' ' . $url, 'http-request-url');
+            return $this;
         }
 
-		$this->debugbar['HTTP_Requests']->info($url);
-		$this->debugbar['HTTP_Requests']->info('Status code: ' . $status_code);
-        
-		return $this;
-		
-	}
+        if (! in_array($status_code, self::HTTP_OK_STATUSES, true)) {
+            $this->debugbar['HTTP_Requests']->addMessage($status_code . ' ' . $parsed_args['method'] . ' ' . $url, 'http-request-url-error');
+            return $this;
+        }
 
-	public function collectResponseBody( $response ) {
+        $this->debugbar['HTTP_Requests']->addMessage($status_code . ' ' . $parsed_args['method'] . ' ' . $url, 'http-request-url');
 
-		$status_code = wp_remote_retrieve_response_code($response);
+        return $this;
+    }
 
-		// Only add response body if status code is not empty.
-		if ( ! empty( $status_code ) ) {
-			$this->debugbar['HTTP_Requests']->info(
-				array(
-					'Response:Body' => wp_remote_retrieve_body($response),
-				)
-			);
-		}
+    public function collectResponseBody($response)
+    {
 
-		return $this;
-	}
+        $status_code = wp_remote_retrieve_response_code($response);
+
+        // Only add response body if status code is not empty.
+        if (! empty($status_code)) {
+            $this->debugbar['HTTP_Requests']->addMessage(
+                array(
+                    'Response:Body' => wp_remote_retrieve_body($response),
+                ),
+                'http-response-body'
+            );
+        }
+
+        return $this;
+    }
+
+    public function collectRequestsArgs($parsed_args, $url)
+    {
+        $this->debugbar['HTTP_Requests']->addMessage(
+            array(
+                'Request:Args' => $parsed_args,
+            ),
+            'http-response-args'
+        );
+    }
+
+    public function collectHttpRequest($response, $requests, $class, $parsed_args, $url)
+    {
+        $this->debugbar['HTTP_Requests']->addMessage(
+            array(
+                'Summary' => array(
+                    'Url'       => $url,
+                    'Class'     => $class,
+                    'Arguments' => $parsed_args,
+                    'Response'  => $response,
+                    'Request'   => $requests,
+                ),
+            ),
+            'http-request-summary'
+        );
+    }
 }

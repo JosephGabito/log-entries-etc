@@ -13,18 +13,18 @@ class HTTPRequestCollector
         if (! $this->debugbar->hasCollector('HTTP_Requests')) {
             $this->debugbar->addCollector(new \DebugBar\DataCollector\MessagesCollector('HTTP_Requests'));
         }
-
     }
 
     public function dispatch()
     {
-        add_action('http_api_debug', array( $this, 'collect' ), 10, 5);
         add_filter('pre_http_request', array( $this, 'startProfile' ), 10, 3);
+        add_action('http_api_debug', array( $this, 'collect' ), 10, 5);
     }
 
     public function startProfile($preempt, $parsed_args, $url)
     {
         $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+        $this->time_started = hrtime(true);
         $this->debugbar['time']->startMeasure('http_requests', $domain, parse_url($url, PHP_URL_PATH));
 
         return $preempt;
@@ -42,9 +42,8 @@ class HTTPRequestCollector
         $this->collectResponseHeaders($response);
 
         $this->collectHttpRequest($response, $requests, $class, $parsed_args, $url);
-        
-        $this->debugbar['time']->stopMeasure('http_requests');
 
+        $this->debugbar['time']->stopMeasure('http_requests');
     }
 
     public function collectResponseHeaders($response)
@@ -63,16 +62,16 @@ class HTTPRequestCollector
         $status_code = wp_remote_retrieve_response_code($response);
 
         if (empty($status_code)) {
-            $this->debugbar['HTTP_Requests']->addMessage($parsed_args['method'] . ' ' . $url, 'http-request-url');
+            $this->debugbar['HTTP_Requests']->addMessage($parsed_args['method'] . ' ' . $this->getTimeElapsed() . ' ' . $url, 'http-request-url');
             return $this;
         }
 
         if (! in_array($status_code, self::HTTP_OK_STATUSES, true)) {
-            $this->debugbar['HTTP_Requests']->addMessage($status_code . ' ' . $parsed_args['method'] . ' ' . $url, 'http-request-url-error');
+            $this->debugbar['HTTP_Requests']->addMessage($status_code . ' ' . $this->getTimeElapsed() . $parsed_args['method'] . ' ' . $url, 'http-request-url-error');
             return $this;
         }
 
-        $this->debugbar['HTTP_Requests']->addMessage($status_code . ' ' . $parsed_args['method'] . ' ' . $url, 'http-request-url');
+        $this->debugbar['HTTP_Requests']->addMessage($status_code . ' ' . $this->getTimeElapsed() . ' ' . $parsed_args['method'] . ' ' . $url, 'http-request-url');
 
         return $this;
     }
@@ -119,5 +118,14 @@ class HTTPRequestCollector
             ),
             'http-request-summary'
         );
+    }
+
+    private function getTimeElapsed()
+    {
+
+        $end = hrtime(true);
+        $eta = $end - $this->time_started;
+
+        return round($eta / 1000000, 2) . 'ms';
     }
 }

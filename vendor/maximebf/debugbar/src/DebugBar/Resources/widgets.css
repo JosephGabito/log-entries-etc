@@ -75,6 +75,36 @@ div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugb
   color: red;
 }
 
+div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-expandable:before {
+  font-family: PhpDebugbarFontAwesome;
+  content: "\f041";
+  margin-right: 8px;
+  font-size: 11px;
+  color: #ecb03d;
+}
+
+div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-expandable-head,
+div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-expandable {
+  background: #fceab2;
+  color: #922700;
+  display: block;
+  padding: 5px 10px;
+  border-bottom: 1px solid #b3cfff;
+}
+
+div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-expandable-head {
+  background: #fceab2;
+  border-bottom: 0;
+  color: #000;
+}
+
+div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-info {
+  background: #d1edff;
+  display: block;
+  padding: 5px 10px;
+  border-bottom: 1px solid #b3cfff;
+}
+
 div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-http-request-url {
   color: #30a611;
 }

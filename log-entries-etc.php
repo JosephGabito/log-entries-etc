@@ -19,6 +19,7 @@ namespace LogEntriesEtc;
 
 use LogEntriesEtc\Events\Emitter\DebugContainer;
 use LogEntriesEtc\Collectors\HTTPRequestCollector;
+use LogEntriesEtc\Collectors\UAProcessCollector;
 
 if ( version_compare(phpversion(), '7.4', '<') ) {
     return;
@@ -35,3 +36,7 @@ $debugEmitter->emit();
 // Http Request Data Collectors.
 $httpRequestCollector = $container->get( HTTPRequestCollector::class );
 $httpRequestCollector->dispatch();
+
+// UncannyAutomator Process Data Collector.
+$UAProcessCollector = $container->get( UAProcessCollector::class );
+$UAProcessCollector->dispatch();
